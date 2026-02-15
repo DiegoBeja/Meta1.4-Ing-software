@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Revisión de Artículo</title>
+<style>
+:root {
+  --bg: #f5f3ef;
+  --card: #ffffff;
+  --primary: #4a6fa5;
+  --primary-hover: #3b5c8a;
+  --text: #333;
+  --success: #4caf50;
+  --error: #d9534f;
+  --radius: 12px;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background-color: var(--bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  background: var(--card);
+  padding: 40px;
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 500px;
+}
+
+h2 {
+  margin-top: 0;
+  color: var(--text);
+  font-weight: 500;
+}
+
+p {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+input[type="file"] {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius);
+  border: 1px solid #ddd;
+  margin-bottom: 15px;
+  background: #fafafa;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius);
+  background-color: var(--primary);
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background-color: var(--primary-hover);
+}
+
+.message {
+  margin-top: 15px;
+  font-weight: 500;
+  font-size: 14px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Enviar nueva versión</h2>
+  <p>Sube tu artículo en PDF para que el revisor pueda evaluar los cambios realizados.</p>
+
+  <form id="uploadForm">
+    <input type="file" id="pdfFile" accept="application/pdf" required />
+    <button type="submit">Enviar al revisor</button>
+  </form>
+
+  <div id="feedbackMessage" class="message"></div>
+</div>
+
+<script>
+// ValidationService
+function validatePDF(file) {
+  if (!file) return "Debes seleccionar un archivo.";
+  if (file.type !== "application/pdf") return "Solo se permiten archivos PDF.";
+  return null;
+}
+
+// ArticleManager
+function saveArticleMetadata(file) {
+  const article = {
+    id: Date.now(),
+    fileName: file.name,
+    uploadDate: new Date().toISOString(),
+    status: "En revisión"
+  };
+
+  const articles = JSON.parse(localStorage.getItem("articles")) || [];
+  articles.push(article);
+  localStorage.setItem("articles", JSON.stringify(articles));
+}
+
+// UI Event
+document.getElementById("uploadForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  const fileInput = document.getElementById("pdfFile");
+  const file = fileInput.files[0];
+  const messageDiv = document.getElementById("feedbackMessage");
+
+  const error = validatePDF(file);
+  if (error) {
+    messageDiv.style.color = "#d9534f";
+    messageDiv.textContent = error;
+    return;
+  }
+
+  saveArticleMetadata(file);
+
+  messageDiv.style.color = "#4caf50";
+  messageDiv.textContent = "Artículo enviado correctamente al revisor.";
+
+  fileInput.value = "";
+});
+</script>
+
+</body>
+</html>
